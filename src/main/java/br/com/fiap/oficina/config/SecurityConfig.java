@@ -3,6 +3,7 @@ package br.com.fiap.oficina.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -31,13 +32,32 @@ import java.util.List;
 public class SecurityConfig {
 
     static final String AUDIENCIA_SESSAO = "oficina-api";
+    static final String AUDIENCIA_SERVICO = "oficina-execucao";
 
     @Value("${jwt.public.key}")
     private RSAPublicKey publicKey;
     @Value("${jwt.issuer}")
     private String issuer;
+    @Value("${jwt.servico.public.key}")
+    private RSAPublicKey chaveServico;
+    @Value("${jwt.servico.emissor:oficina-os}")
+    private String emissorServico;
 
     @Bean
+    @Order(1)
+    SecurityFilterChain internoFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher("/internal/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt
+                        .decoder(servicoJwtDecoder(this.chaveServico, this.emissorServico))))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .build();
+    }
+
+    @Bean
+    @Order(2)
     SecurityFilterChain devFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -62,6 +82,15 @@ public class SecurityConfig {
         JwtAuthenticationConverter jwtConverter = new JwtAuthenticationConverter();
         jwtConverter.setJwtGrantedAuthoritiesConverter(converter);
         return jwtConverter;
+    }
+
+    static JwtDecoder servicoJwtDecoder(RSAPublicKey publicKey, String emissor) {
+        NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(publicKey).build();
+        OAuth2TokenValidator<Jwt> audiencia = new JwtClaimValidator<List<String>>(JwtClaimNames.AUD,
+                aud -> aud != null && aud.contains(AUDIENCIA_SERVICO));
+        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
+                JwtValidators.createDefaultWithIssuer(emissor), audiencia));
+        return decoder;
     }
 
     static JwtDecoder sessaoJwtDecoder(RSAPublicKey publicKey, String issuer) {
