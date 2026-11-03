@@ -192,7 +192,7 @@ class FilaExecucaoUseCaseUnitTest {
         comItem(EtapaExecucao.REPARO, StatusItemFila.EM_ANDAMENTO);
         salvarDevolveOItem();
 
-        useCase.cancelarReparo(CTX, "Pedido do cliente");
+        useCase.cancelarReparo(CTX, "OS1", "Pedido do cliente");
 
         verify(gateway).salvar(any());
         verify(mensageria).publicarEvento("ReparoCancelado", CTX, Map.of("canceladoEm", AGORA.toString()));
@@ -203,10 +203,23 @@ class FilaExecucaoUseCaseUnitTest {
     void cancelamentoDepoisDeFinalizado() {
         comItem(EtapaExecucao.REPARO, StatusItemFila.CONCLUIDO);
 
-        useCase.cancelarReparo(CTX, "Tarde demais");
+        useCase.cancelarReparo(CTX, "OS1", "Tarde demais");
 
         verify(gateway, never()).salvar(any());
         verify(mensageria).publicarEvento("ReparoJaFinalizado", CTX, Map.of("finalizadoEm", AGORA.toString()));
+    }
+
+    @Test
+    @DisplayName("Cancelar antes do enfileiramento grava marcador cancelado, sem item fantasma")
+    void cancelarAntesDeEnfileirar() {
+        when(gateway.buscar(7L, EtapaExecucao.REPARO))
+                .thenReturn(Optional.empty())
+                .thenReturn(Optional.of(item(EtapaExecucao.REPARO, StatusItemFila.AGUARDANDO)));
+        salvarDevolveOItem();
+
+        useCase.cancelarReparo(CTX, "OS1", "Prazo esgotado");
+
+        verify(mensageria).publicarEvento("ReparoCancelado", CTX, Map.of("canceladoEm", AGORA.toString()));
     }
 
     @Test
@@ -216,7 +229,7 @@ class FilaExecucaoUseCaseUnitTest {
         cancelado.setConcluidoEm(AGORA);
         when(gateway.buscar(7L, EtapaExecucao.REPARO)).thenReturn(Optional.of(cancelado));
 
-        useCase.cancelarReparo(CTX, "De novo");
+        useCase.cancelarReparo(CTX, "OS1", "De novo");
 
         verify(gateway, never()).salvar(any());
         verify(mensageria).publicarEvento(eq("ReparoCancelado"), eq(CTX), anyMap());

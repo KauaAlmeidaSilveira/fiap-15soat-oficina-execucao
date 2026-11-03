@@ -86,7 +86,9 @@ public class FilaExecucaoUseCase {
         return salvo;
     }
 
-    public void cancelarReparo(ContextoSaga contexto, String motivo) {
+    public void cancelarReparo(ContextoSaga contexto, String numeroOs, String motivo) {
+        // Sem item: o EnfileirarReparo atrasou e pode chegar depois. O marcador evita um item fantasma na fila.
+        enfileirar(contexto, numeroOs, null, EtapaExecucao.REPARO);
         ItemFila item = buscar(contexto.osId(), EtapaExecucao.REPARO);
         if (item.getStatus() == StatusItemFila.CONCLUIDO) {
             LOG.log(System.Logger.Level.INFO,

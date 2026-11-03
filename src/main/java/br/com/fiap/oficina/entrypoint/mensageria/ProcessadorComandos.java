@@ -39,7 +39,7 @@ public class ProcessadorComandos {
             case "EnfileirarDiagnostico" -> filaUseCase.enfileirarDiagnostico(contexto,
                     payload.path("numero").asText(), payload.path("descricaoProblema").asText(null));
             case "EnfileirarReparo" -> filaUseCase.enfileirarReparo(contexto, payload.path("numero").asText());
-            case "CancelarReparo" -> filaUseCase.cancelarReparo(contexto, payload.path("motivo").asText());
+            case "CancelarReparo" -> filaUseCase.cancelarReparo(contexto, payload.path("numero").asText(), payload.path("motivo").asText());
             case "BaixarEstoque" -> estoqueUseCase.baixar(contexto, itens(payload));
             case "DevolverEstoque" -> estoqueUseCase.devolver(contexto, payload.path("motivo").asText());
             default -> log.warn("Comando {} desconhecido na OS {}: ignorado", comando.tipo(), comando.osId());

@@ -100,7 +100,7 @@ class ProcessadorComandosIT {
     void comandosDeFila() {
         processador.processar(comando("EnfileirarDiagnostico", Map.of("numero", "OS1", "descricaoProblema", "Barulho")));
         processador.processar(comando("EnfileirarReparo", Map.of("numero", "OS1")));
-        processador.processar(comando("CancelarReparo", Map.of("motivo", "Cliente desistiu")));
+        processador.processar(comando("CancelarReparo", Map.of("numero", "OS1", "motivo", "Cliente desistiu")));
         processador.processar(comando("Inexistente", Map.of()));
 
         assertThat(eventos()).containsExactlyInAnyOrder("DiagnosticoEnfileirado", "ReparoEnfileirado", "ReparoCancelado");
