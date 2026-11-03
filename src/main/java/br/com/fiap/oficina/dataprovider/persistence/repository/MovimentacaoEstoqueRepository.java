@@ -1,5 +1,6 @@
 package br.com.fiap.oficina.dataprovider.persistence.repository;
 
+import br.com.fiap.oficina.core.domain.enums.OperacaoEstoqueSaga;
 import br.com.fiap.oficina.core.domain.enums.TipoMovimentacao;
 import br.com.fiap.oficina.dataprovider.persistence.entity.MovimentacaoEstoque;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,6 +14,8 @@ import java.util.List;
 public interface MovimentacaoEstoqueRepository extends JpaRepository<MovimentacaoEstoque, Long> {
     List<MovimentacaoEstoque> findByProdutoIdOrderByCriadoEmDesc(Long produtoId);
     List<MovimentacaoEstoque> findByTipo(TipoMovimentacao tipo);
+
+    List<MovimentacaoEstoque> findByOrdemServicoIdAndOperacaoSaga(Long ordemServicoId, OperacaoEstoqueSaga operacaoSaga);
 
     @Query("""
         SELECT COALESCE(
