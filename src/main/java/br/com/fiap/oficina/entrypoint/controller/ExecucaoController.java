@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/execucoes")
 @RequiredArgsConstructor
+/** Rotas de operador gravam o item da fila e o evento da outbox na mesma transação: uma falha desfaz os dois. */
 @Tag(name = "Execução", description = "Fila de execução, diagnóstico e reparo")
 public class ExecucaoController {
 
@@ -32,6 +34,7 @@ public class ExecucaoController {
     }
 
     @PostMapping("/{osId}/diagnostico/iniciar")
+    @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'OPERADOR')")
     @Operation(summary = "Iniciar o diagnóstico da OS")
     public ResponseEntity<ItemFilaResponse> iniciarDiagnostico(@PathVariable Long osId) {
@@ -39,6 +42,7 @@ public class ExecucaoController {
     }
 
     @PostMapping("/{osId}/diagnostico/concluir")
+    @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'OPERADOR')")
     @Operation(summary = "Concluir o diagnóstico da OS. Os itens da OS congelam neste ponto.")
     public ResponseEntity<ItemFilaResponse> concluirDiagnostico(@PathVariable Long osId) {
@@ -46,6 +50,7 @@ public class ExecucaoController {
     }
 
     @PostMapping("/{osId}/reparo/iniciar")
+    @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'OPERADOR')")
     @Operation(summary = "Iniciar o reparo da OS")
     public ResponseEntity<ItemFilaResponse> iniciarReparo(@PathVariable Long osId) {
@@ -53,6 +58,7 @@ public class ExecucaoController {
     }
 
     @PostMapping("/{osId}/reparo/finalizar")
+    @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'OPERADOR')")
     @Operation(summary = "Finalizar o reparo da OS")
     public ResponseEntity<ItemFilaResponse> finalizarReparo(@PathVariable Long osId) {
