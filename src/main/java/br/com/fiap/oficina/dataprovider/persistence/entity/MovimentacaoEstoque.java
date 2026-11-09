@@ -1,5 +1,6 @@
 package br.com.fiap.oficina.dataprovider.persistence.entity;
 
+import br.com.fiap.oficina.core.domain.enums.OperacaoEstoqueSaga;
 import br.com.fiap.oficina.core.domain.enums.TipoMovimentacao;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,7 +24,8 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "movimentacao_estoque")
+@Table(name = "movimentacao_estoque", uniqueConstraints = @UniqueConstraint(
+        columnNames = {"ordem_servico_id", "operacao_saga", "produto_id"}))
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
@@ -51,6 +54,10 @@ public class MovimentacaoEstoque {
 
     @Column(name = "ordem_servico_id")
     private Long ordemServicoId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "operacao_saga")
+    private OperacaoEstoqueSaga operacaoSaga;
 
     @PrePersist
     protected void onCreate() {
