@@ -64,7 +64,7 @@ public class SecurityConfig {
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)) // necessário para H2 Console (usa iframes)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/h2-console/**", "/actuator/health", "/actuator/prometheus").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/h2-console/**", "/actuator/health", "/actuator/health/liveness", "/actuator/health/readiness", "/actuator/prometheus").permitAll()
                         .requestMatchers("/api/**").hasAnyRole("ADMIN", "RECEPCAO", "OPERADOR")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt
