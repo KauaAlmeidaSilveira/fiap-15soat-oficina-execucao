@@ -1,0 +1,23 @@
+# Valores ${...} sao preenchidos pelo scripts/deploy-aws.sh do repositorio do OS (envsubst).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: oficina-execucao-config
+  namespace: oficina
+data:
+  # simulacao liga a injecao de falha (PUT /api/simulacao/falha, so ADMIN) para demonstrar as compensacoes da Saga. A rota nao passa pelo API Gateway: usar kubectl port-forward.
+  SPRING_PROFILES_ACTIVE: "default,simulacao"
+  # Endpoint da RDS (terraform output rds_endpoint em infra-db).
+  DB_HOST: "${DB_HOST}"
+  DB_NAME: "oficina_execucao"
+  DB_USER: "oficina_execucao"
+  # Token de sessao emitido pela Lambda.
+  JWT_PUBLIC_KEY: "file:/app/keys/sessao.public.key"
+  # URL do API Gateway (terraform output api_gateway_url em lambda-auth).
+  JWT_ISSUER: "${JWT_ISSUER}"
+  # Valida as chamadas internas do OS.
+  JWT_SERVICO_PUBLIC_KEY: "file:/app/keys/servico.public.key"
+  AWS_REGION: "us-east-1"
+  NEW_RELIC_APP_NAME: "oficina-execucao"
+  # Os logs JSON chegam ao New Relic pelo nri-bundle (stdout); o forwarding do agente duplicaria.
+  NEW_RELIC_APPLICATION_LOGGING_FORWARDING_ENABLED: "false"
