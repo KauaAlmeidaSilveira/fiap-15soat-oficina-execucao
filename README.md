@@ -103,7 +103,10 @@ Execução local de 16/11/2026, na `main` (`e35c5c7`):
 |---|---|---|---|---|---|
 | 85 | 0 | 95,8% | 94,1% | 76,3% | Passou |
 
-No SonarQube local de 15/11/2026 (`scripts/sonar-local.sh` no OS), a Execução passou no quality gate "Sonar way"
+No SonarQube local de 17/11/2026 (`scripts/sonar-local.sh` no OS), a Execução passou no quality gate "Sonar way"
 com 94,4% de cobertura e nota A em confiabilidade, segurança, revisão de segurança e manutenibilidade. Os três
 serviços estão na seção "Qualidade" do [README do OS](https://github.com/KauaAlmeidaSilveira/fiap-15soat-oficina-os#qualidade-sonarqube).
-O `ci.yml` roda o mesmo `mvn verify` e o SonarCloud, mas o GitHub Actions da conta está bloqueado por billing.
+O `ci.yml` roda o mesmo `mvn verify` no GitHub Actions a cada PR e push na `main` (verde desde 17/11/2026); o
+passo do SonarCloud fica pulado sem o secret `SONAR_TOKEN`.
+
+![SonarQube: Execução aprovado no quality gate](https://raw.githubusercontent.com/KauaAlmeidaSilveira/fiap-15soat-oficina-os/main/docs/evidencias/sonar/execucao.png)
